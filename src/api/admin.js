@@ -160,3 +160,33 @@ export function clothing_categoryAdmin(params,method,isLine) {
     params
   })
 }
+export function clothing_partAdmin(params,method,isLine) {
+  return request({
+    url: '/api/Admin/clothing_part'+(isLine?'/'+isLine:''),
+    method,
+    params
+  })
+}
+
+export function clothing_partselectAdmin(params,method,isLine) {
+  return request({
+    url: '/api/Admin/clothing_part/select'+(isLine?'/'+isLine:''),
+    method,
+    params
+  })
+}
+export function part_templateAdmin(params,method,isLine) {
+  return request({
+    url: '/api/Admin/part_template'+(isLine?'/'+isLine:''),
+    method,
+    params
+  })
+}
+
+export function print_templateAdmin(params,method,isLine) {
+  return request({
+    url: '/api/Admin/print_template'+(isLine?'/'+isLine:''),
+    method,
+    params
+  })
+}
