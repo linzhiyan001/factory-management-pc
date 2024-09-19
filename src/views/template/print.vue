@@ -23,7 +23,6 @@
 			</div>
 			<div class="table">
 				<el-table :data="dataList" border>
-					<el-table-column type="selection" width="55" align="center"></el-table-column>
 					<el-table-column prop="name" label="菲票模板" align="center"></el-table-column>
 					<el-table-column prop="ist" label="是否默认模板" align="center">
 						<template slot-scope="scope">
@@ -39,8 +38,8 @@
 								<el-button size="mini" type="danger" plain
 									@click="handleDelete(scope.$index, scope.row)">删除</el-button>
 								<!-- <el-button size="mini" type="info" plain @click="handleDiy(scope.$index, scope.row)">设计模板</el-button> -->
-								<el-button size="mini" type="warning" plain
-									@click="handleCopy(scope.$index, scope.row)">复制模板</el-button>
+								<!-- <el-button size="mini" type="warning" plain
+									@click="handleCopy(scope.$index, scope.row)">复制模板</el-button> -->
 							</div>
 						</template>
 					</el-table-column>
