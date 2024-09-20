@@ -61,12 +61,15 @@
             prop="unit_price_mode"
             label="单价模式"
             align="center"
-          ></el-table-column>
-          <el-table-column
-            prop="processs"
-            label="列表"
-            align="center"
-          ></el-table-column>
+          >
+            <template slot-scope="scope">
+              <div>
+                <p v-if="scope.row.unit_price_mode == 0">默认单价</p>
+                <p v-if="scope.row.unit_price_mode == 1">分码单价</p>
+                <p v-if="scope.row.unit_price_mode == 2">分岗位单价</p>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column
             fixed="right"
             label="操作"
@@ -89,7 +92,7 @@
                   @click="handleDelete(scope.$index, scope.row)"
                   >删除</el-button
                 >
-                <download-excel
+                <!-- <download-excel
                   ref="export"
                   class="export-excel-wrapper"
                   :data="selectData"
@@ -107,7 +110,7 @@
                     <i class="el-icon-download"></i>
                     下载当前模版
                   </el-button>
-                </download-excel>
+                </download-excel> -->
               </div>
             </template>
           </el-table-column>
@@ -140,7 +143,10 @@
           <el-input v-model="detailForm.name"></el-input>
         </el-form-item>
         <el-form-item label="单价模式" style="width: 100%">
-          <el-radio-group v-model="detailForm.mode" :disabled="modeDisabled">
+          <el-radio-group
+            v-model="detailForm.unit_price_mode"
+            :disabled="modeDisabled"
+          >
             <el-radio :label="0">默认单价</el-radio>
             <el-radio :label="1">分码单价</el-radio>
             <el-radio :label="2">分岗位单价</el-radio>
@@ -178,7 +184,7 @@
                 popper-class="table-popover"
                 width="400"
                 trigger="hover"
-                v-if="detailForm.mode === '2'"
+                v-if="detailForm.unit_price_mode === '2'"
               >
                 <span slot="reference">
                   价格 <i class="el-icon-plus"></i>
@@ -220,7 +226,7 @@
                 popper-class="table-popover"
                 width="400"
                 trigger="hover"
-                v-else-if="detailForm.mode === '3'"
+                v-else-if="detailForm.unit_price_mode === '3'"
               >
                 <span slot="reference">
                   价格 <i class="el-icon-plus"></i>
@@ -397,7 +403,9 @@
         </el-table>
       </div>
       <div class="hj">
-        <span>默认工价合计：<b>{{ totalPrice}}</b></span>
+        <span
+          >默认工价合计：<b>{{ totalPrice }}</b></span
+        >
         <span
           >合计工序数：<b>{{ dataList2.length }}</b></span
         >
@@ -471,15 +479,16 @@ export default {
         { value: "部门2", label: "部门2" },
       ],
       gwList: [],
-      dataList: [ ],
+      dataList: [],
       json_fields: {
         名称: "name",
         工序数: "sort",
         工价: "price",
       },
       detailForm: {
-        mode: 0,
+        unit_price_mode: 0,
         name: "",
+        id:""
       },
       rules: {
         name: [{ required: true, message: "请输入模版名称", trigger: "blur" }],
@@ -507,7 +516,7 @@ export default {
       selectData: [],
       headerTitle: "",
       gwList: [],
-      totalPrice:0
+      totalPrice: 0,
     };
   },
 
@@ -522,7 +531,7 @@ export default {
   },
   created() {
     this.adminroleFn();
-this.adminroleListFn()
+    this.adminroleListFn();
     this.gwList = [];
     this.sizeList = [
       {
@@ -587,14 +596,15 @@ this.adminroleListFn()
       },
     ];
   },
-  computed: {
-  
-  },
+  computed: {},
   methods: {
     totalPriceFn() {
-        this.totalPrice= this.dataList2.reduce((sum, item) => sum + (item.price || 0), 0);
+      this.totalPrice = this.dataList2.reduce(
+        (sum, item) => sum + (item.price || 0),
+        0
+      );
     },
-   
+
     addFn() {
       this.dataList2.push({
         process_name: "",
@@ -649,7 +659,7 @@ this.adminroleListFn()
       this.adminroleListFn();
     },
     adminroleListFn(page) {
-        processs_template(
+      processs_template(
         {
           page: this.page,
           page_size: this.page_size,
@@ -670,7 +680,7 @@ this.adminroleListFn()
     addList() {
       this.detailForm = {
         id: "",
-        mode: 0,
+        unit_price_mode: 0,
         name: "",
       };
       this.dataList2 = [
@@ -689,7 +699,7 @@ this.adminroleListFn()
 
     // 选择尺码
     clickTableAddSize(index) {
-      if (this.detailForm.mode === "2") {
+      if (this.detailForm.unit_price_mode === "2") {
         if (!this.sizeList[index].disabled) {
           this.sizeList[index].isActive = !this.sizeList[index].isActive;
         }
@@ -772,7 +782,6 @@ this.adminroleListFn()
       }
     },
 
-
     handleDownload(index, item) {
       this.selectData[0] = item;
       this.headerTitle = item.name;
@@ -789,30 +798,37 @@ this.adminroleListFn()
       });
     },
     dialogConfirm() {
+      alert(this.detailForm.id)
       processs_template(
         {
           name: this.detailForm.name,
-          unit_price_mode: this.detailForm.mode,
-          processs:this.dataList2,
+          unit_price_mode: this.detailForm.unit_price_mode,
+          processs: this.dataList2,
         },
-        "POST"
+        "POST",
+        this.detailForm.id
       ).then((e) => {
         this.dialogVisible = false;
-        this.reset()
+        this.reset();
       });
     },
     reset() {
       for (let i in this.searchParams) {
         this.searchParams[i] = null;
       }
-	  
-	   this.adminroleListFn();
-	  
+
+      this.adminroleListFn();
     },
     clickItem() {
       console.log(456);
     },
-    handleEdit(idx,item) {
+    handleEdit(idx, item) {
+      if (item.detail && item.detail.length) {
+        item.detail.forEach((e) => {
+          e.post_ids = e.post_ids.map(Number);
+        });
+      }
+      this.dataList2 = item.detail;
       this.detailForm = item;
       this.dialogVisible = true;
     },
@@ -833,7 +849,6 @@ this.adminroleListFn()
         });
       });
     },
-  
   },
 };
 </script>
