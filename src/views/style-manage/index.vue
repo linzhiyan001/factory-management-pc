@@ -70,85 +70,86 @@
 					<el-input v-model="detailData.style_no"></el-input>
 				</el-form-item>
 				<el-form-item label="款式名称" class="lgm-form-item">
-					<el-input v-model="detailData.name"></el-input>
+					<el-input v-model="detailData.style_name"></el-input>
 				</el-form-item>
 
 				<el-form-item label="颜色组合" class="lgm-form-item">
-					<el-select v-model="colorListValue" placeholder="请选择" style="width: 100%;" multiple
+					<el-select v-model="detailData.colors" placeholder="请选择" style="width: 100%;" multiple
 						@change="colorChange">
 						<div class="search-slot" style="padding: 10px;">
 							<div class="header" style="display: flex; justify-content: space-between;">
-								<div class="header-left" style="display: flex; width: calc(100% - 140px);">
+								<!-- <div class="header-left" style="display: flex; width: calc(100% - 140px);">
 									<el-input v-model="addColor" placeholder="输入新增颜色"></el-input>
 									<el-button type="info" plain icon="el-icon-plus"
 										@click="clickAddColor">添加颜色</el-button>
-								</div>
+								</div> -->
 								<div class="header-right">
-									<el-button type="primary" icon="el-icon-search" class="lgm-add-btn"
+									<el-button type="primary"  class="lgm-add-btn"
 										@click="selectAllColor">{{ isAllSelectColorBtn }}</el-button>
 								</div>
 							</div>
 						</div>
-						<el-option v-for="item of colorListOptions" :key="item.value" :label="item.label"
-							:value="item.value"></el-option>
+						<el-option v-for="item of colorListOptions" :key="item.id" :label="item.color_name"
+							:value="item.id"></el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="尺码组合" class="lgm-form-item">
-					<el-select v-model="sizeListValue" placeholder="请选择" style="width: 100%;" multiple
+					<el-select v-model="detailData.sizes" placeholder="请选择" style="width: 100%;" multiple
 						@change="sizeChange">
 						<div class="search-slot" style="padding: 10px;">
 							<div class="header" style="display: flex; justify-content: space-between;">
-								<div class="header-left" style="display: flex; width: calc(100% - 140px);">
+								<!-- <div class="header-left" style="display: flex; width: calc(100% - 140px);">
 									<el-input v-model="addSize" placeholder="输入新增尺码"></el-input>
 									<el-button type="info" plain icon="el-icon-plus"
 										@click="clickAddSize">添加尺码</el-button>
-								</div>
+								</div> -->
 								<div class="header-right">
-									<el-button type="primary" icon="el-icon-search" class="lgm-add-btn"
+									<el-button type="primary" class="lgm-add-btn"
 										@click="selectAllSize">{{ isAllSelectSizeBtn }}</el-button>
 								</div>
 							</div>
 						</div>
-						<el-option v-for="item of sizeListOptions" :key="item.value" :label="item.label"
-							:value="item.value"></el-option>
+						<el-option v-for="item of sizeListOptions" :key="item.id" :label="item.size_name"
+							:value="item.id"></el-option>
 					</el-select>
 				</el-form-item>
 
 				<el-form-item label="款式分类" class="lgm-form-item">
-					<el-select v-model="styleListValue" placeholder="请选择" style="width: 100%;">
+					<el-select v-model="detailData.style_category_id" placeholder="请选择" style="width: 100%;">
 						<div class="search-slot" style="padding: 10px;">
 							<div class="header" style="display: flex; justify-content: space-between;">
-								<div class="header-left" style="display: flex; width: 100%;">
+								<!-- <div class="header-left" style="display: flex; width: 100%;">
 									<el-input v-model="addStyle" placeholder="输入新增分类"></el-input>
 									<el-button type="info" plain icon="el-icon-plus"
 										@click="clickAddStyle">添加分类</el-button>
-								</div>
+								</div> -->
 							</div>
-						</div <el-option v-for="item of styleListOptions" :key="item.value" :label="item.label"
-							:value="item.value">
+						</div >
+						<el-option v-for="item of styleListOptions" :key="item.id" :label="item.name"
+							:value="item.id">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="客户名称" class="lgm-form-item">
-					<el-select v-model="bossListValue" placeholder="请选择" style="width: 100%;">
+					<el-select v-model="detailData.customer_id" placeholder="请选择" style="width: 100%;">
 						<div class="search-slot" style="padding: 10px;">
-							<div class="header" style="display: flex; justify-content: space-between;">
+							<!-- <div class="header" style="display: flex; justify-content: space-between;">
 								<div class="header-left" style="display: flex; width: 100%;">
 									<el-input v-model="addBoss" placeholder="输入客户名称"></el-input>
 									<el-button type="info" plain icon="el-icon-plus"
 										@click="clickAddBoss">添加客户</el-button>
 								</div>
-							</div>
+							</div> -->
 						</div>
-						<el-option v-for="item of bossListOptions" :key="item.value" :label="item.label"
-							:value="item.value"></el-option>
+						<el-option v-for="item of bossListOptions" :key="item.id" :label="item.customer_name"
+							:value="item.id"></el-option>
 					</el-select>
 				</el-form-item>
 
 				<el-form-item label="加工部门" class="lgm-form-item">
-					<el-select v-model="searchParams.department" placeholder="请选择部门" style="width: 100%;">
-						<el-option v-for="item in departmentList" :key="item.value" :label="item.label"
-							:value="item.value" />
+					<el-select v-model="detailData.department_id" placeholder="请选择部门" style="width: 100%;">
+						<el-option v-for="item in departmentList" :key="item.id" :label="item.name"
+							:value="item.id" />
 					</el-select>
 				</el-form-item>
 				<el-form-item label="" class="lgm-form-item">
@@ -157,7 +158,7 @@
 
 
 				<el-form-item label="款式备注" class="lgm-form-item" style="width: 100% !important;">
-					<el-input type="textarea" v-model="desk" style="height: 100px;"></el-input>
+					<el-input type="textarea" v-model="detailData.remark" style="height: 100px;"></el-input>
 				</el-form-item>
 
 				<el-form-item label="款式图片" class="lgm-form-item" style="width: 100% !important">
@@ -821,7 +822,14 @@
 	import Sortable from 'sortablejs'
 	import UploadImage from '@/components/uploadImage'
 	import $ from 'jquery';
-
+	import {
+		colorAdmin,
+		sizeAdmin,
+		clothing_categoryAdmin,
+		customerAdmin,
+		department
+		
+	} from "@/api/admin";
 	export default {
 		name: 'StyleManage',
 		data() {
@@ -1160,29 +1168,21 @@
 					unit_price_mode: '0',
 					picture: '',
 					processs: [],
-					sizes: '',
-					colors: '',
+					sizes: [],
+					colors: [],
 					mode: '默认单价',
-					classify: ''
+					classify: '',
+					remark: '',
+					
 				},
 				addColor: '',
 				addSize: '',
 				colorListValue: [],
 				colorListOptions: [],
-				sizeListValue: [],
 				sizeListOptions: [],
-				styleListValue: [],
 				addStyle: '',
 				styleListOptions: [],
-				departmentList: [{
-						value: '部门1',
-						label: '部门1'
-					},
-					{
-						value: '部门2',
-						label: '部门2'
-					}
-				],
+				departmentList: [],
 				desk: '',
 				mode: '',
 				ccDialog: false,
@@ -1305,98 +1305,13 @@
 				}
 			]
 
-			// 颜色组合数据
-			this.colorListOptions = [{
-					label: '黑色',
-					value: 1
-				},
-				{
-					label: '蓝色',
-					value: 2
-				},
-				{
-					label: '黄色',
-					value: 3
-				}
-			]
+		
 
 			// 尺码组合
-			this.sizeListOptions = [{
-					label: '32',
-					value: '32'
-				},
-				{
-					label: '31',
-					value: '31'
-				},
-				{
-					label: '30',
-					value: '30'
-				},
-				{
-					label: '29',
-					value: '29'
-				},
-				{
-					label: '28',
-					value: '28'
-				},
-				{
-					label: '27',
-					value: '27'
-				},
-				{
-					label: '26',
-					value: '26'
-				},
-				{
-					label: '4XL',
-					value: '4XL'
-				},
-				{
-					label: '3XL',
-					value: '3XL'
-				},
-				{
-					label: '2XL',
-					value: '2XL'
-				},
-				{
-					label: 'XL',
-					value: 'XL'
-				},
-				{
-					label: 'L',
-					value: 'L'
-				},
-				{
-					label: 'M',
-					value: 'M'
-				},
-				{
-					label: 'S',
-					value: 'S'
-				},
-				{
-					label: 'XS',
-					value: 'XS'
-				},
-			]
+			this.sizeListOptions = []
 
 			// 款式组合
-			this.styleListOptions = [{
-					label: '连衣裙',
-					value: 1
-				},
-				{
-					label: '运动裤',
-					value: 2
-				},
-				{
-					label: '休闲裤',
-					value: 3
-				}
-			]
+			this.styleListOptions = []
 
 			// 客户组合
 			this.bossListOptions = [{
@@ -1449,9 +1364,67 @@
 					}
 				}
 			}
-
+			this.colorAdminFn()
+			this.sizeAdminFn()
+			this.clothing_categoryAdminFn()
+			this.customerAdminFn()
+			this.departmentFn()
+				
 		},
 		methods: {
+			colorAdminFn() {
+				colorAdmin({
+						page: 1,
+						page_size: 100000,
+					},
+					"GET"
+				).then((e) => {
+					this.colorListOptions = e.data.list;
+				});
+			},
+			sizeAdminFn() {
+				sizeAdmin({
+						page: 1,
+						page_size: 100000,
+					},
+					"GET"
+				).then((e) => {
+					this.sizeListOptions = e.data.list;
+				});
+			},
+			clothing_categoryAdminFn() {
+				clothing_categoryAdmin({
+						page: 1,
+						page_size: 100000,
+					},
+					"GET"
+				).then((e) => {
+					this.styleListOptions = e.data.list;
+				});
+			},
+			customerAdminFn() {
+				customerAdmin({
+						page: 1,
+						page_size: 100000,
+					},
+					"GET"
+				).then((e) => {
+					this.bossListOptions = e.data.list;
+				});
+			},
+			departmentFn() {
+				department({
+						page: 1,
+						page_size: 100000,
+					},
+					"GET"
+				).then((e) => {
+					this.departmentList = e.data.list;
+				});
+			},
+
+
+			
 			toTemplate() {
 				this.$router.push({
 					path: '/template/part-template'
@@ -2059,37 +2032,37 @@
 				}
 			},
 			colorChange() {
-				if (this.colorListValue.length !== this.colorListOptions) {
+				if (this.detailData.colors.length !== this.colorListOptions) {
 					this.isAllSelectColorBtn = '选择所有'
 				}
 			},
 			selectAllColor() {
 				if (this.isAllSelectColorBtn === '取消所有') {
 					this.isAllSelectColorBtn = '选择所有'
-					this.colorListValue = []
+					this.detailData.colors = []
 				} else {
 					this.isAllSelectColorBtn = '取消所有'
 					for (let i in this.colorListOptions) {
 						let item = this.colorListOptions[i]
-						this.colorListValue.push(item.value)
+						this.detailData.colors.push(item.id)
 					}
 				}
 
 			},
 			sizeChange() {
-				if (this.colorListValue.length !== this.colorListOptions) {
+				if (this.detailData.colors.length !== this.colorListOptions) {
 					this.isAllSelectColorBtn = '选择所有'
 				}
 			},
 			selectAllSize() {
 				if (this.isAllSelectSizeBtn === '取消所有') {
 					this.isAllSelectSizeBtn = '选择所有'
-					this.sizeListValue = []
+					this.detailData.sizes = []
 				} else {
 					this.isAllSelectSizeBtn = '取消所有'
 					for (let i in this.sizeListOptions) {
 						let item = this.sizeListOptions[i]
-						this.sizeListValue.push(item.value)
+						this.detailData.sizes.push(item.id)
 					}
 				}
 			},
