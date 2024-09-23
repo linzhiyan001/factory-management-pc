@@ -60,8 +60,8 @@
 								</el-button>
 								<el-button size="mini" type="success" plain
 									@click="handleCcbf(scope.$index, scope.row)">裁床编菲</el-button>
-								<el-button size="mini" type="warning" plain
-									@click="handleDelete(scope.$index, scope.row)">同步工序</el-button>
+<!--								<el-button size="mini" type="warning" plain-->
+<!--									@click="handleDelete(scope.$index, scope.row)">同步工序</el-button>-->
 							</div>
 						</template>
 					</el-table-column>
