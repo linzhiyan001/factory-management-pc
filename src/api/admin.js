@@ -190,3 +190,11 @@ export function print_templateAdmin(params,method,isLine) {
     params
   })
 }
+export function styleAdmin(params,method,isLine) {
+  return request({
+    url: '/api/Admin/style'+(isLine?'/'+isLine:''),
+    method,
+    params,
+    data:params
+  })
+}

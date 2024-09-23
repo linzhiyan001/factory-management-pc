@@ -1,7 +1,7 @@
 <template>
   <div class="app-container setImg">
     <div class="content">
-      <div class="lgm-search">
+      <div v-if="!isSelct" class="lgm-search">
         <el-form
           ref="form"
           :model="searchParams"
@@ -34,7 +34,7 @@
           </el-row>
         </el-form>
       </div>
-      <div class="table-header-btn">
+      <div v-if="!isSelct" class="table-header-btn">
         <el-button
           type="success"
           plain
@@ -74,6 +74,15 @@
             <template slot-scope="scope">
               <div class="flex" style="display: flex; justify-content: center">
                 <el-button
+                  v-if="isSelct"
+                  size="mini"
+                  type="primary"
+                  plain
+                  @click="isSelctFn(scope.$index, scope.row)"
+                >选择模板</el-button
+                >
+                <el-button
+                  v-if="!isSelct"
                   size="mini"
                   type="primary"
                   plain
@@ -81,6 +90,8 @@
                   >修改</el-button
                 >
                 <el-button
+                  v-if="!isSelct"
+
                   size="mini"
                   type="danger"
                   plain
@@ -300,6 +311,8 @@
           >
             <template slot-scope="scope">
               <el-switch
+                :active-value="1"
+                :inactive-value="0"
                 v-model="scope.row.display_price"
                 active-color="#ed6d00"
               />
@@ -312,6 +325,7 @@
             min-width="180"
           >
             <template slot-scope="scope">
+
               <el-select
                 v-model="scope.row.post_ids"
                 multiple
@@ -430,6 +444,7 @@ export default {
   components: {
     "download-excel": DownloadExcel,
   },
+  props:['isSelct'],
   data() {
     return {
       dataList: [],
@@ -446,7 +461,7 @@ export default {
         {
           process_name: "",
           price: "",
-          display_price: "",
+          display_price: 1,
           remark: "",
           image: "",
           size_id: "",
@@ -605,6 +620,10 @@ export default {
   },
   computed: {},
   methods: {
+    isSelctFn(index,row){
+      this.$emit('isSelctFn',row)
+
+},
     totalPriceFn() {
       this.totalPrice = this.dataList2.reduce(
         (sum, item) => sum + (item.price || 0),
@@ -616,7 +635,7 @@ export default {
       this.dataList2.push({
         process_name: "",
         price: "",
-        display_price: "",
+        display_price:1,
         remark: "",
         image: "",
         size_id: "",
@@ -694,7 +713,7 @@ export default {
         {
           process_name: "",
           price: "",
-          display_price: "",
+          display_price: 1,
           remark: "",
           image: "",
           size_id: "",
@@ -895,7 +914,7 @@ export default {
     padding: 20px;
     border-radius: 5px;
     margin-bottom: 20px;
-  } 
+  }
 
   .info {
     display: flex;

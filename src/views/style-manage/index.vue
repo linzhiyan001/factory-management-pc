@@ -7,30 +7,44 @@
 					<el-form-item label="款式名称">
 						<el-input v-model="searchParams.style_name" placeholder="请输入款式编号或名称查询"></el-input>
 					</el-form-item>
-					<el-row>
-						<el-button type="success" class="lgm-search-btn" icon="el-icon-search">搜索</el-button>
-						<el-button class="lgm-reset-btn" icon="el-icon-refresh" @click="reset">重置</el-button>
-					</el-row>
+          <el-row>
+            <el-button
+              @click="
+                page = 1;
+                styleAdminFn();
+              "
+              type="success"
+              class="lgm-search-btn"
+              icon="el-icon-search"
+            >搜索</el-button
+            >
+            <el-button
+              class="lgm-reset-btn"
+              icon="el-icon-refresh"
+              @click="reset"
+            >重置</el-button
+            >
+          </el-row>
 				</el-form>
 			</div>
 
 			<div class="table-header-btn">
 				<el-button type="success" plain size="small" class="lgm-add-btn" icon="el-icon-plus"
 					@click="addList">新增</el-button>
-				<el-button type="danger" plain size="small" icon="el-icon-delete" @click="deleteList">删除</el-button>
 			</div>
 
 			<div class="table">
 				<el-table :data="dataList" border>
-					<el-table-column type="selection" width="55" align="center"></el-table-column>
 					<el-table-column prop="style_no" label="款式编号" align="center"></el-table-column>
 					<el-table-column prop="style_name" label="款式名称" align="center"></el-table-column>
-					<el-table-column prop="sizes" label="尺码组合" align="center"></el-table-column>
-					<el-table-column prop="colors" label="颜色组合" align="center"></el-table-column>
+					<el-table-column prop="size_name" label="尺码组合" align="center"></el-table-column>
+					<el-table-column prop="color_name" label="颜色组合" align="center"></el-table-column>
 					<el-table-column prop="picture" label="图片" min-width="140" align="center">
 						<template slot-scope="scope">
-							<el-image :src="scope.row.avatar" fit="cover" style="width: 80px;height: 80px;"
-								:preview-src-list="srcList" />
+							<el-image v-for="(item,idx) in scope.row.picture" :key="idx"
+                        :src="item" fit="cover"
+                        style="width: 80px;height: 80px;"
+								:preview-src-list="scope.row.picture" />
 						</template>
 					</el-table-column>
 					<el-table-column prop="production_process_id" label="工序(道)" align="center"></el-table-column>
@@ -56,7 +70,7 @@
 			<div class="lgm-page-wrap">
 				<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background
 					:page-sizes="[10, 100, 200, 300, 400]" :page-size="10"
-					layout="total, sizes, prev, pager, next, jumper" :total="400">
+					layout="total, sizes, prev, pager, next, jumper" :total="total">
 				</el-pagination>
 			</div>
 		</div>
@@ -163,22 +177,28 @@
 
 				<el-form-item label="款式图片" class="lgm-form-item" style="width: 100% !important">
 					<div class="update-image-wrap">
-						<div v-for="(item, index) of srcList" :key="item">
-							<el-image :src="srcList[0]"
-								style="width: 78px; height: 78px; border-radius: 6px; margin-right: 10px;"></el-image>
-						</div>
-						<div class="update-image" @click="clickStyleImage">
-							<i class="el-icon-plus" style="font-size: 30px; color: #ccc;"></i>
-						</div>
+            <el-upload
+              class="avatar-uploader"
+              accept="image/*"
+              :headers="headers"
+              action="https://api.yhjerp.com/api/Admin/uploads"
+              list-type="picture-card"
+              :on-preview="handlePictureCardPreview"
+              :on-success="handleAvatarSuccess"
+              :file-list="fileList"
+              :on-remove="handleRemove">
+              <i class="el-icon-plus"></i>
+            </el-upload>
+
 					</div>
 				</el-form-item>
+<!--        etailData.production_process_id-->
+				<el-form-item label="生产工序" d class="lgm-form-item" style="width: 100% !important">
+					<el-button type="info" size="small" @click="toTemplate=true" plain>选择模板</el-button>
 
-				<el-form-item label="生产工序" class="lgm-form-item" style="width: 100% !important">
-					<el-button type="info" size="small" plain>选择模板</el-button>
-					<el-button type="info" size="small" plain>保存模板</el-button>
-					<el-button type="info" size="small" plain @click="toTemplate">模板管理</el-button>
 
 				</el-form-item>
+
 
 				<el-form-item label="单价模式" style="width: 100% !important">
 					<el-radio-group v-model="detailData.unit_price_mode" @input="modeChange" :disabled="modeDisabled">
@@ -192,154 +212,279 @@
 				</el-form-item>
 			</el-form>
 
+
 			<div class="detail-table">
-				<el-table :data="dataList2" border ref="dragTable" style="width: 80%;">
-					<el-table-column prop="phone" label="序号" width="80" align="center">
-						<template slot-scope="scope">
-							<span>
-								<i class="el-icon-rank"></i>
-								{{ scope.$index }}
-							</span>
-						</template>
-					</el-table-column>
-					<el-table-column prop="id" label="工序名称" align="center" min-width="160">
-						<template slot-scope="scope">
-							<el-input type="text" v-model="scope.row.id" />
-						</template>
-					</el-table-column>
+        <div class="detail-table">
+          <el-table :data="dataList2" border ref="dragTable" style="width: 100%">
+            <el-table-column prop="phone" label="序号" width="80" align="center">
+              <template slot-scope="scope">
+              <span>
+                <i class="el-icon-rank"></i>
+                {{ scope.$index }}
+              </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="id"
+              label="工序名称"
+              align="center"
+              min-width="160"
+            >
+              <template slot-scope="scope">
+                <el-input type="text" v-model="scope.row.process_name" />
+              </template>
+            </el-table-column>
 
-					<el-table-column prop="price" align="center" min-width="160">
-						<template slot="header" slot-scope="scope">
-							<el-popover placement="bottom" title=" " popper-class="table-popover" width="400"
-								trigger="hover" v-if="detailData.unit_price_mode === '1'">
-								<span slot="reference">
-									价格 <i class="el-icon-plus"></i>
-								</span>
-								<slot>
-									<div class="size-list" style="display: flex; flex-wrap: wrap;">
-										<div class="size-list-item" v-for="(item, index) of sizeList" :key="index"
-											style="padding: 8px 15px;
-                                            border: 1px solid #eee;
-                                            cursor: pointer;"
-											:class="{ 'isActive': item.isActive, 'isDisabled': item.disabled }"
-											@click="clickTableAddSize(index)">
-											{{ item.item }}
-										</div>
-									</div>
-									<div style="margin-top: 20px;">
-										<el-button class="lgm-reset-btn" icon="el-icon-refresh"
-											@click="selectSize">选择尺码并确定</el-button>
-									</div>
-								</slot>
-							</el-popover>
+            <el-table-column prop="price" align="center" min-width="160">
+              <template slot="header" slot-scope="scope">
+                <el-popover
+                  placement="bottom"
+                  title=" "
+                  popper-class="table-popover"
+                  width="400"
+                  trigger="hover"
+                  v-if="detailData.unit_price_mode === '2'"
+                >
+                <span slot="reference">
+                  价格 <i class="el-icon-plus"></i>
+                </span>
+                  <slot>
+                    <div class="size-list" style="display: flex; flex-wrap: wrap">
+                      <div
+                        class="size-list-item"
+                        v-for="(item, index) of sizeList"
+                        :key="index"
+                        style="
+                        padding: 8px 15px;
+                        border: 1px solid #eee;
+                        cursor: pointer;
+                      "
+                        :class="{
+                        isActive: item.isActive,
+                        isDisabled: item.disabled,
+                      }"
+                        @click="clickTableAddSize(index)"
+                      >
+                        {{ item.item }}
+                      </div>
+                    </div>
+                    <div style="margin-top: 20px">
+                      <el-button
+                        class="lgm-reset-btn"
+                        icon="el-icon-refresh"
+                        @click="selectSize"
+                      >选择尺码并确定</el-button
+                      >
+                    </div>
+                  </slot>
+                </el-popover>
 
-							<el-popover placement="bottom" title=" " popper-class="table-popover" width="400"
-								trigger="hover" v-else-if="detailData.unit_price_mode === '2'">
-								<span slot="reference">
-									价格 <i class="el-icon-plus"></i>
-								</span>
-								<slot>
-									<div class="size-list" style="display: flex; flex-wrap: wrap;">
-										<div class="size-list-item" v-for="(item, index) of gwList" :key="index" style="padding: 8px 15px;
-                                            border: 1px solid #eee;
-                                            cursor: pointer;"
-											:class="{ 'isActive': item.isActive, 'isDisabled': item.disabled }"
-											@click="clickTableAddSize(index)">
-											{{ item.item }}
-										</div>
-									</div>
-									<div style="margin-top: 20px;">
-										<el-button class="lgm-reset-btn" icon="el-icon-refresh"
-											@click="selectGw">选择岗位并确定</el-button>
-									</div>
-								</slot>
-							</el-popover>
+                <el-popover
+                  placement="bottom"
+                  title=" "
+                  popper-class="table-popover"
+                  width="400"
+                  trigger="hover"
+                  v-else-if="detailData.unit_price_mode === '3'"
+                >
+                <span slot="reference">
+                  价格 <i class="el-icon-plus"></i>
+                </span>
+                  <slot>
+                    <div class="size-list" style="display: flex; flex-wrap: wrap">
+                      <div
+                        class="size-list-item"
+                        v-for="(item, index) of gwList"
+                        :key="index"
+                        style="
+                        padding: 8px 15px;
+                        border: 1px solid #eee;
+                        cursor: pointer;
+                      "
+                        :class="{
+                        isActive: item.isActive,
+                        isDisabled: item.disabled,
+                      }"
+                        @click="clickTableAddSize(index)"
+                      >
+                        {{ item.item }}
+                      </div>
+                    </div>
+                    <div style="margin-top: 20px">
+                      <el-button
+                        class="lgm-reset-btn"
+                        icon="el-icon-refresh"
+                        @click="selectGw"
+                      >选择岗位并确定</el-button
+                      >
+                    </div>
+                  </slot>
+                </el-popover>
 
-							<span slot="reference" v-else>
-								价格
-							</span>
-						</template>
-						<template slot-scope="scope">
-							<el-input-number v-model="scope.row.price" controls-position="right" :min="0"
-								size="small" />
-						</template>
-					</el-table-column>
+                <span slot="reference" v-else> 价格 </span>
+              </template>
+              <template slot-scope="scope">
+                <el-input-number
+                  v-model="scope.row.price"
+                  controls-position="right"
+                  @input="totalPriceFn"
+                  :min="0"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
 
+            <!-- 动态添加 -->
+            <el-table-column
+              align="center"
+              min-width="160"
+              v-for="(item, index) of customColumn"
+              :key="item.id"
+            >
+              <template slot="header" slot-scope="scope">
+              <span slot="reference" @click="deleteTableColumn(item, index)">
+                <i class="el-icon-delete"></i> {{ item.size }}
+              </span>
+              </template>
+              <template slot-scope="scope">
+                <el-input-number
+                  v-model="scope.row['a' + index]"
+                  controls-position="right"
+                  :min="0"
+                  size="small"
+                />
+              </template>
+            </el-table-column>
 
-					<!-- 动态添加 -->
-					<el-table-column align="center" min-width="160" v-for="(item, index) of customColumn"
-						:key="item.id">
-						<template slot="header" slot-scope="scope">
-							<span slot="reference" @click="deleteTableColumn(item, index)">
-								<i class="el-icon-delete"></i> {{ item.size }}
-							</span>
-						</template>
-						<template slot-scope="scope">
-							<el-input-number v-model="scope.row['a' + index]" controls-position="right" :min="0"
-								size="small" />
-						</template>
-					</el-table-column>
-
-
-					<el-table-column prop="price2" label="显示价格" align="center" min-width="160">
-						<template slot-scope="scope">
-							<el-switch v-model="scope.row.price2" active-color="#ed6d00" />
-						</template>
-
-					</el-table-column>
-					<el-table-column prop="gw" label="可见岗位" align="center" min-width="180">
-						<template slot-scope="scope">
-							<el-select v-model="scope.row.gw" multiple collapse-tags style="margin-left: 20px;"
-								placeholder="请选择">
-								<div style="width: 100%; text-align: center; margin-bottom: 5px;">
-									<el-button type="danger" size="small" plain style="width: 90%;">选择所有</el-button>
-								</div>
-								<el-option label="厂长" value="0"></el-option>
-								<el-option label="平边" value="1"></el-option>
-							</el-select>
-						</template>
-					</el-table-column>
-					<el-table-column prop="img" label="图片" align="center" min-width="160">
-						<template slot-scope="scope">
-							<div class="upload-image" @click="clickUpload(scope.$index)" v-if="scope.row.img">
-								<el-image :src="scope.row.img" fit="cover"></el-image>
-							</div>
-							<div class="upload-image" @click="clickUpload(scope.$index)" v-else><i
-									class="el-icon-plus"></i></div>
-						</template>
-					</el-table-column>
-					<el-table-column prop="remark" label="备注" align="center" min-width="160">
-						<template slot-scope="scope">
-							<el-input type="text" v-model="scope.row.remark" />
-						</template>
-					</el-table-column>
-					<el-table-column fixed="right" label="操作" align="center" width="80">
-						<template slot-scope="scope">
-							<div class="flex">
-								<span @click="deleteItem(scope.row, scope.$index)">
-									<i class="el-icon-delete" style="fontwarning-size: 20px; cursor: pointer;"></i>
-								</span>
-							</div>
-						</template>
-					</el-table-column>
-				</el-table>
-
-				<div class="hj">
-					<span>默认工价合计：<b>20</b></span>
-					<span>合计工序数：<b>{{ dataList2.length }}</b></span>
-				</div>
+            <el-table-column
+              prop="price2"
+              label="显示价格"
+              align="center"
+              min-width="80"
+            >
+              <template slot-scope="scope">
+                <el-switch
+                  :active-value="1"
+                  :inactive-value="0"
+                  v-model="scope.row.display_price"
+                  active-color="#ed6d00"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="post_ids"
+              label="可见岗位"
+              align="center"
+              min-width="180"
+            >
+              <template slot-scope="scope">
+                <el-select
+                  v-model="scope.row.post_ids"
+                  multiple
+                  collapse-tags
+                  style="margin-left: 20px"
+                  placeholder="请选择"
+                >
+                  <div
+                    style="width: 100%; text-align: center; margin-bottom: 5px"
+                    @click="
+                    () => {
+                      scope.row.post_ids = adminroleList.map((role) => role.id);
+                    }
+                  "
+                  >
+                    <el-button type="danger" size="small" plain style="width: 90%"
+                    >选择所有</el-button
+                    >
+                  </div>
+                  <el-option
+                    v-for="item in adminroleList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  ></el-option>
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="img"
+              label="图片"
+              align="center"
+              min-width="160"
+            >
+              <template slot-scope="scope">
+                <el-upload
+                  class="avatar-uploader"
+                  accept="image/*"
+                  :headers="headers"
+                  action="https://api.yhjerp.com/api/Admin/uploads"
+                  :show-file-list="false"
+                  :disabled="!!detailData.id"
+                  :before-upload="beforeUpload"
+                  :on-success="
+                  (res, file) => {
+                    if (loadingInstance) {
+                      loadingInstance.close();
+                    }
+                    scope.row.image = res.data;
+                  }
+                "
+                >
+                  <img
+                    v-if="scope.row.image"
+                    :src="scope.row.image"
+                    class="avatar"
+                  />
+                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                </el-upload>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="remark"
+              label="备注"
+              align="center"
+              min-width="160"
+            >
+              <template slot-scope="scope">
+                <el-input type="text" v-model="scope.row.remark" />
+              </template>
+            </el-table-column>
+            <el-table-column fixed="right" label="操作" align="center" width="80">
+              <template slot-scope="scope">
+                <div class="flex">
+                <span @click="deleteItem(scope.row, scope.$index)">
+                  <i
+                    class="el-icon-delete"
+                    style="fontwarning-size: 20px; cursor: pointer"
+                  ></i>
+                </span>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div class="hj">
+        <span
+        >默认工价合计：<b>{{ totalPrice }}</b></span
+        >
+          <span
+          >合计工序数：<b>{{ dataList2.length }}</b></span
+          >
+        </div>
+        <el-button type="success" @click="addFn" plain style="width: 100%"
+        >添加工序</el-button
+        >
 			</div>
 
-			<div class="add-gx" @click="addGxData">
-				添加工序
-			</div>
 
 			<span slot="footer" class="dialog-footer">
 				<el-button class="lgm-reset-btn" @click="dialog = false">取消</el-button>
-				<el-button type="primary" @click="dialog = false" class="lgm-search-btn">确定</el-button>
+				<el-button type="primary" @click="styleAdminAdd" class="lgm-search-btn">确定</el-button>
 			</span>
 		</el-dialog>
-
+    <el-dialog title="请点击选择一个工序模板" :visible.sync="toTemplate" width="80%" >
+      <styleManageIndex :isSelct="1" @isSelctFn="isSelctFn"></styleManageIndex>
+    </el-dialog>
 
 		<!-- 裁床编菲 -->
 		<el-dialog title="款式信息" :visible.sync="ccDialog" width="100%" center fullscreen custom-class="cc-dialog">
@@ -822,18 +967,36 @@
 	import Sortable from 'sortablejs'
 	import UploadImage from '@/components/uploadImage'
 	import $ from 'jquery';
-	import {
-		colorAdmin,
-		sizeAdmin,
-		clothing_categoryAdmin,
-		customerAdmin,
-		department
-		
-	} from "@/api/admin";
+  import {
+    colorAdmin,
+    sizeAdmin,
+    clothing_categoryAdmin,
+    customerAdmin,
+    department, adminrole, styleAdmin, processs_template
+
+  } from '@/api/admin'
+import   styleManageIndex from '@/views/template/index.vue'
+  import { getToken } from '@/utils/auth'
+  import { Loading } from 'element-ui'
 	export default {
 		name: 'StyleManage',
 		data() {
 			return {
+        dataList: [],
+        page: 1,
+        page_size: 10,
+        total: 0,
+        loadingInstance: null,
+        isSelctObj:{},
+        adminroleList:[],
+        totalPrice: 0,
+
+        toTemplate:false,
+        headers:{
+          Authorization: `Bearer ${getToken()}`
+        },
+        dialogImageUrl: '',
+        dialogVisible: false ,
 				tableCustomStyleObj: {},
 				tableSelectStyle: '更改款式',
 				isTableSelect: false,
@@ -855,130 +1018,11 @@
 				tableWidth: 300,
 				colorTagValue: '',
 				sizeTagValue: '',
-				colorArrTag: [{
-						color: '黑色',
-						isActive: false
-					},
-					{
-						color: '黄色',
-						isActive: false
-					},
-					{
-						color: '蓝色',
-						isActive: false
-					},
-					{
-						color: '白色',
-						isActive: false
-					},
-					{
-						color: '红色',
-						isActive: false
-					},
-					{
-						color: '紫色',
-						isActive: false
-					},
-					{
-						color: '绿色',
-						isActive: false
-					},
-					{
-						color: '银色',
-						isActive: false
-					},
-					{
-						color: '浅色',
-						isActive: false
-					},
-					{
-						color: '灰色',
-						isActive: false
-					}
-				],
-				sizeArrTag: [{
-						size: '32',
-						isActive: false
-					},
-					{
-						size: '31',
-						isActive: false
-					},
-					{
-						size: '30',
-						isActive: false
-					},
-					{
-						size: '29',
-						isActive: false
-					},
-					{
-						size: '28',
-						isActive: false
-					},
-					{
-						size: '27',
-						isActive: false
-					},
-					{
-						size: '26',
-						isActive: false
-					},
-					{
-						size: '4XL',
-						isActive: false
-					},
-					{
-						size: '3XL',
-						isActive: false
-					},
-					{
-						size: '2XL',
-						isActive: false
-					},
-					{
-						size: 'XL',
-						isActive: false
-					},
-					{
-						size: 'L',
-						isActive: false
-					},
-					{
-						size: 'M',
-						isActive: false
-					},
-					{
-						size: 'S',
-						isActive: false
-					},
-					{
-						size: 'XS',
-						isActive: false
-					}
-				],
-				selectColorArrTag: [{
-						color: '黑色',
-						isActive: true
-					},
-					{
-						color: '蓝色',
-						isActive: true
-					},
-				],
-				selectSizeArrTag: [{
-						size: '32',
-						isActive: true
-					},
-					{
-						size: '31',
-						isActive: true
-					},
-					{
-						size: '30',
-						isActive: true
-					},
-				],
+				colorArrTag: [],
+				selectColorArrTag: [],
+        selectSizeArrTag: [],
+        fileList: [],
+
 				isAllColorTag: false,
 				isAllSizeTag: false,
 				showColorPop: false,
@@ -1002,6 +1046,7 @@
 				styleSearchParams: {
 					style_name: ''
 				},
+        sizeArrTag:[],
 				dialogTableVisible: false,
 				styleTableData: [{
 						id: '552',
@@ -1024,81 +1069,9 @@
 					style_name: ''
 				},
 				srcList: ['https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg'],
-				dataList: [{
-						avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-						id: '001',
-						code: '001',
-						ccrq: '2024-05-04',
-						zs: 2,
-						color: '黑色',
-						name: '无',
-						orderNumber: '123332',
-						ch: '1',
-						jhrq: '2024-06-04',
-						js: 100,
-						size: '29,30',
-						sfsh: '否',
-						finishNumber: 10,
-						percentage: ''
-
-					},
-					{
-						avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-						id: '002',
-						code: '001',
-						ccrq: '2024-05-04',
-						zs: 2,
-						color: '黑色',
-						name: '无',
-						orderNumber: '123332',
-						ch: '1',
-						jhrq: '2024-06-04',
-						js: 100,
-						size: '29,30',
-						sfsh: '否',
-						finishNumber: 20,
-						percentage: ''
-					},
-					{
-						avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-						id: '003',
-						code: '001',
-						ccrq: '2024-05-04',
-						zs: 2,
-						color: '黑色',
-						name: '无',
-						orderNumber: '123332',
-						ch: '1',
-						jhrq: '2024-06-04',
-						js: 100,
-						size: '29,30',
-						sfsh: '否',
-						finishNumber: 30,
-						percentage: ''
-					}
-				],
+				dataList: [	],
 				UploadImageType: '',
-				dataList2: [{
-						avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-						id: '平车2',
-						price: 10,
-						price2: true,
-						gw: ['0', '1'],
-						remark: '赶时间2222',
-						a0: 2,
-						img: ''
-					},
-					{
-						avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-						id: '平车',
-						price: 10,
-						price2: 10,
-						gw: ['0'],
-						remark: '赶时间',
-						a0: 3,
-						img: ''
-					}
-				],
+				dataList2: [],
 				dailogTitle: '新增',
 				rules: {
 					id: [{
@@ -1166,14 +1139,14 @@
 					department_id: '',
 					production_process_id: '',
 					unit_price_mode: '0',
-					picture: '',
+					picture: [],
 					processs: [],
 					sizes: [],
 					colors: [],
 					mode: '默认单价',
 					classify: '',
 					remark: '',
-					
+
 				},
 				addColor: '',
 				addSize: '',
@@ -1209,7 +1182,8 @@
 			}
 		},
 		components: {
-			'upload-image': UploadImage
+			'upload-image': UploadImage,
+      styleManageIndex
 		},
 		watch: {
 			customColumn(data) {
@@ -1221,91 +1195,14 @@
 			}
 		},
 		created() {
-			this.sizeList = [{
-					item: '32',
-					isActive: false
-				},
-				{
-					item: '31',
-					isActive: false
-				},
-				{
-					item: '30',
-					isActive: false
-				},
-				{
-					item: '29',
-					isActive: false
-				},
-				{
-					item: '28',
-					isActive: false
-				},
-				{
-					item: '27',
-					isActive: false
-				},
-				{
-					item: '26',
-					isActive: false
-				},
-				{
-					item: '4XL',
-					isActive: false
-				},
-				{
-					item: '3XL',
-					isActive: false
-				},
-				{
-					item: '2XL',
-					isActive: false
-				},
-				{
-					item: 'XL',
-					isActive: false
-				},
-				{
-					item: 'L',
-					isActive: false
-				},
-				{
-					item: 'M',
-					isActive: false
-				},
-				{
-					item: 'S',
-					isActive: false
-				},
-				{
-					item: 'XS',
-					isActive: false
-				}
-			]
+      this.styleAdminFn();
 
-			this.gwList = [{
-					item: '冚车',
-					isActive: false
-				},
-				{
-					item: '打边',
-					isActive: false
-				},
-				{
-					item: '平车',
-					isActive: false
-				},
-				{
-					item: '裁床师',
-					isActive: false
-				},
-				{
-					item: '厂长',
-					isActive: false
-				}
-			]
+      this.adminroleFn()
+			this.sizeList = [	]
 
-		
+			this.gwList = []
+
+
 
 			// 尺码组合
 			this.sizeListOptions = []
@@ -1314,33 +1211,21 @@
 			this.styleListOptions = []
 
 			// 客户组合
-			this.bossListOptions = [{
-					label: '李总',
-					value: 1
-				},
-				{
-					label: '刘总',
-					value: 2
-				},
-				{
-					label: '王总',
-					value: 3
-				}
-			]
+			this.bossListOptions = []
 
-			for (let i in this.dataList2) {
-				let item = this.dataList2[i]
-				for (let k = 0; k < 16; k++) {
-					this.$set(item, 'a' + k, 0)
-				}
-			}
-
-			if (this.selectColorArrTag.length !== this.colorArrTag.length) {
-				// 显示全选按钮
-				this.isAllColorTag = false
-			} else {
-				this.isAllColorTag = true
-			}
+			// for (let i in this.dataList2) {
+			// 	let item = this.dataList2[i]
+			// 	for (let k = 0; k < 16; k++) {
+			// 		this.$set(item, 'a' + k, 0)
+			// 	}
+			// }
+      //
+			// if (this.selectColorArrTag.length !== this.colorArrTag.length) {
+			// 	// 显示全选按钮
+			// 	this.isAllColorTag = false
+			// } else {
+			// 	this.isAllColorTag = true
+			// }
 
 
 			// 颜色、尺码组合回显
@@ -1369,9 +1254,93 @@
 			this.clothing_categoryAdminFn()
 			this.customerAdminFn()
 			this.departmentFn()
-				
+
 		},
 		methods: {
+      beforeUpload() {
+        // 显示 loading
+        this.loadingInstance = Loading.service({
+          text: "上传...",
+          background: "rgba(0, 0, 0, 0.7)", // 自定义 loading 背景色
+        });
+      },
+      totalPriceFn() {
+        this.totalPrice = this.dataList2.reduce(
+          (sum, item) => sum + (item.price || 0),
+          0
+        );
+      },
+      addFn() {
+        this.dataList2.push({
+          process_name: "",
+          price: "",
+          display_price: 1,
+          remark: "",
+          image: "",
+          size_id: "",
+          post_ids: [],
+        });
+      },
+      adminroleFn() {
+        adminrole(
+          {
+            page: 1,
+            page_size: 1000,
+          },
+          "GET"
+        ).then((e) => {
+          this.adminroleList = e.data.list;
+
+        });
+      },
+      styleAdminAdd(){
+        styleAdmin(
+          {
+            ...this.detailData,
+            processs: this.dataList2,
+          },
+          this.detailData.id ? "PATCH" : "POST",
+          this.detailData.id
+        ).then((e) => {
+          this.dialog = false
+          this.reset();
+
+
+        });
+
+      },
+      isSelctFn(e){
+        this.isSelctObj=e
+
+        this.toTemplate=false
+        this.detailData.unit_price_mode=e.unit_price_mode +''
+        if (e.detail && e.detail.length) {
+          e.detail.forEach(e2 => {
+            console.log(e2.post_ids);
+            e2.post_ids = e2.post_ids.map(e3 => Number(e3)); // 直接返回转换后的数字
+          });
+        }
+        console.log(e)
+
+        this.dataList2=e.detail
+      },
+      handleRemove(file, fileList) {
+        console.log(file)
+        const fileData = file.response?file.response.data:file.url;
+        console.log(fileData);
+        console.log(this.detailData.picture);
+        let idx = this.detailData.picture.findIndex(e => e === fileData);
+        this.detailData.picture.splice(idx, 1)
+      },
+      handlePictureCardPreview(file) {
+        console.log(file)
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
+      },
+      handleAvatarSuccess(res, file) {
+        this.detailData.picture.push(res.data)
+
+      },
 			colorAdminFn() {
 				colorAdmin({
 						page: 1,
@@ -1424,12 +1393,7 @@
 			},
 
 
-			
-			toTemplate() {
-				this.$router.push({
-					path: '/template/part-template'
-				})
-			},
+
 			clickStyleImage() {
 				this.UploadImageType = 1
 				this.showUploadImage = true
@@ -2112,7 +2076,7 @@
 			},
 			// 选择尺码
 			clickTableAddSize(index) {
-				if (this.detailForm.mode === '2') {
+				if (this.detailData.mode === '2') {
 					if (!this.sizeList[index].disabled) {
 						this.sizeList[index].isActive = !this.sizeList[index].isActive
 					}
@@ -2222,7 +2186,11 @@
 				for (let i in this.searchParams) {
 					this.searchParams[i] = null
 				}
-			},
+        this.page = 1;
+
+        this.styleAdminFn();
+
+      },
 			reset2() {
 				for (let i in this.styleSearchParams) {
 					this.searchParams[i] = null
@@ -2233,32 +2201,87 @@
 			},
 			addList() {
 				this.detailData = {
-					mode: '默认单价',
-					classify: ''
+          style_no: '',
+          style_name: '',
+          style_category_id: '',
+          customer_id: '',
+          department_id: '',
+          production_process_id: '',
+          unit_price_mode: '0',
+          picture: [],
+          processs: [],
+          sizes: [],
+          colors: [],
+          mode: '默认单价',
+          classify: '',
+          remark: '',
 				}
 				this.dailogTitle = '修改'
 				this.dialog = true
-				this.setSort()
+				// this.setSort()
 			},
 			deleteList() {},
 			handleEdit(item) {
-				this.detailData = {
-					mode: '默认单价',
-					classify: ''
-				}
+        styleAdmin(
+          { },
+         "GET",
+          item.id
+        ).then((e) => {
+
+          e.colors=colorIds
+          const sizeIds = e.data.sizes.map(size => size.id);
+          const colorIds = e.data.colors.map(color => color.id);
+          e.data.colors=colorIds
+          e.data.sizes=sizeIds
+          console.log(e)
+          this.fileList=[]
+          if(e.data.picture && e.data.picture.length){
+            e.data.picture.forEach((e,idx)=>{
+              this.fileList.push({
+                name:idx,
+                url:e
+              })
+            })
+
+          }
 
 
+          this.detailData = e.data
+          this.dailogTitle = '修改'
+          this.dialog = true
 
-				this.dailogTitle = '修改'
-				this.dialog = true
-				this.setSort()
+        });
+
+
+				// this.setSort()
 			},
 			handleCcbf() {
 				this.ccDialog = true
 			},
-			handleSizeChange() {},
-			handleCurrentChange() {},
-			clickItem() {},
+      handleSizeChange(value) {
+        this.page_size = value;
+        this.styleAdminFn();
+      },
+      handleCurrentChange(value) {
+        this.page = value;
+        this.adminroleListFn();
+      },
+      styleAdminFn() {
+        styleAdmin(
+          {
+            page: this.page,
+            page_size: this.page_size,
+            name: this.searchParams.style_name
+          },
+          "GET"
+        ).then((e) => {
+          console.log(e.data.list);
+          this.dataList = e.data.list;
+          this.total = e.data.total;
+        });
+      },
+
+      clickItem() {},
 			setSort() {
 				this.$nextTick(() => {
 					const el = this.$refs.dragTable.$el.querySelectorAll(
@@ -2271,12 +2294,13 @@
 			},
 			addGxData() {
 				let obj = {
-					avatar: '',
-					id: '',
-					price: 0,
-					price2: 0,
-					gw: [],
-					remark: '',
+          process_name: "",
+          price: "",
+          display_price: 1,
+          remark: "",
+          image: "",
+          size_id: "",
+          post_ids: [],
 				}
 				this.dataList2.push(obj)
 			},
