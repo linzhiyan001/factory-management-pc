@@ -845,7 +845,8 @@
                     { size: 'XS', isActive: false }
                 ],
                 selectColorArrTag: [
-                  
+                    { color: '黑色', isActive: true },
+                    { color: '蓝色', isActive: true },
                 ],
                 selectSizeArrTag: [
                     { size: '32', isActive: true },
@@ -1193,13 +1194,6 @@ this.departmentFn()
 					"GET"
 				).then((e) => {
 					this.colorListOptions = e.data.list;
-					this.selectColorArrTag = [];
-                    e.data.list.forEach((e)=>{
-                        this.selectColorArrTag.push({
-                            color: e.color_name,
-                             isActive: true
-                        })
-                    })
 				});
 			},
             sizeAdminFn() {
@@ -1210,13 +1204,6 @@ this.departmentFn()
 					"GET"
 				).then((e) => {
 					this.sizeListOptions = e.data.list;
-                    this.selectSizeArrTag = [];
-                    e.data.list.forEach((e)=>{
-                        this.selectSizeArrTag.push({
-                            size: e.size_name,
-                             isActive: true
-                        })
-                    })
 				});
 			},
             customerAdminFn() {
@@ -1397,7 +1384,7 @@ this.ccDialog=true
                         let item2 = this.diyTableColumn[k]
 
                         if (isDelete) {
-                            numTotal += Number(item[item2.label] || 0)
+                            numTotal += Number(item[item2.label])
                             // 赋值总计
                             if (this.handleParams.dual && index === 0) {
 

@@ -54,7 +54,17 @@ export const constantRoutes = [
             meta: { title: '工作台', icon: 'el-icon-s-platform' }
         }]
     },
-
+    {
+        path: '/',
+        component: Layout,
+        redirect: '/demo',
+        children: [{
+            path: 'demo',
+            name: 'demo',
+            component: () => import('@/views/bed-manage/demo'),
+            meta: { title: 'demo', icon: 'el-icon-s-platform' }
+        }]
+    },
     {
         path: '/style-manage',
         component: Layout,
