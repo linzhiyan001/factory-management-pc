@@ -141,6 +141,7 @@
                 :key="index2"
               >
                 <div v-if="switch7" class="td">
+                
                   <el-select
                     v-model="item2.style_id"
                     placeholder="请选择"
@@ -149,9 +150,9 @@
                   >
                     <el-option
                       v-for="item3 of styleselectOptions"
-                      :key="item3.id"
+                      :key="item3.id+''"
                       :label="item3.style_name"
-                      :value="item3.id"
+                      :value="item3.id+''"
                     ></el-option>
                   </el-select>
                 </div>
@@ -310,6 +311,12 @@
               <span>总扎数：{{ tablebundle_number }}</span>
               <span>总数：{{ tableSum }}</span>
             </div>
+            <div class="right">
+				
+					<div class="btn" @click="clearTable">
+						清空裁床表
+					</div>
+				</div>
           </div>
         </div>
       </div>
@@ -435,6 +442,8 @@ export default {
         id: item.id,
         color_name: item.color_name,
         total: 0,
+        style_id:this.style_id +'',
+
         layer_number: this.colorCheck.length + 1, //层数
       })
       if (this.colorCheck.length == 1 && this.sizeCheck.length == 0) {
@@ -442,7 +451,7 @@ export default {
         for (let i = 0; i < this.sizeCheck.length; i++) {
           this.list.push({
             quantity: 0,
-            style_id: this.sizeCheck[i].style_id,
+           
             bundle_number: 1,
             size_id: this.sizeCheck[i].id,
             size_name: this.sizeCheck[i].size_name,
@@ -479,7 +488,7 @@ export default {
     setbundle_no() {
       for (let i = 0; i < this.list.length; i++) {
         // this.list[i].bundle_no = i + 1 //扎号
-        this.list[i].style_id = this.style_id //款式id
+        this.list[i].style_id = this.style_id +''//款式id
         // this.list[i].bundle_number = 1 //捆数扎数
       }
       console.log(this.list)
@@ -723,7 +732,7 @@ export default {
       this.tableSum = tableSum
       this.tablebundle_number = tablebundle_number
       this.$forceUpdate()
-      this.$emit('saveTableList', this.list, this.sizeCheck, this.colorCheck)
+      this.$emit('saveTableList', this.list, this.sizeCheck, this.colorCheck,tableSum,tablebundle_number)
     },
     // 查看裁床表
     divTable() {
@@ -1084,4 +1093,21 @@ export default {
 i {
   cursor: pointer;
 }
+.right {
+					display: flex;
+					align-items: center;
+					flex-wrap: nowrap;
+					justify-content: space-between;
+
+					.btn {
+						padding: 5px 10px;
+						color: #ed6d00;
+						border: 1px solid #ed6d00;
+						background: #fdf0e5;
+            cursor: pointer;
+						border-radius: 10px;
+						margin: 0 10px;
+						margin-left: 40px;
+					}
+				}
 </style>
