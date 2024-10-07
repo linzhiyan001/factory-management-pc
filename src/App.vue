@@ -12,6 +12,11 @@ export default {
 
 <style lang="scss">
 @import "~@/styles/variables.scss";
+.form23{
+		.el-form-item{
+			display: block;
+		}
+	}
 
 .el-cascader-panel {
   .in-active-path {

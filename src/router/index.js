@@ -54,17 +54,17 @@ export const constantRoutes = [
             meta: { title: '工作台', icon: 'el-icon-s-platform' }
         }]
     },
-    {
-        path: '/',
-        component: Layout,
-        redirect: '/demo',
-        children: [{
-            path: 'demo',
-            name: 'demo',
-            component: () => import('@/views/bed-manage/demo'),
-            meta: { title: 'demo', icon: 'el-icon-s-platform' }
-        }]
-    },
+    // {
+    //     path: '/',
+    //     component: Layout,
+    //     redirect: '/demo',
+    //     children: [{
+    //         path: 'demo',
+    //         name: 'demo',
+    //         component: () => import('@/views/bed-manage/demo'),
+    //         meta: { title: 'demo', icon: 'el-icon-s-platform' }
+    //     }]
+    // },
     {
         path: '/style-manage',
         component: Layout,
@@ -154,7 +154,7 @@ export const constantRoutes = [
                 component: () => import('@/views/month/index'),
                 meta: { title: '按月统计薪资', icon: 'month' }
             }
-            
+
         ]
     },
 
@@ -201,7 +201,7 @@ export const constantRoutes = [
                 component: () => import('@/views/personnel/factory'),
                 meta: { title: '加工厂管理', icon: 'factory' }
             },
-            
+
         ]
     },
 
@@ -254,7 +254,7 @@ export const constantRoutes = [
                 component: () => import('@/views/template/print'),
                 meta: { title: '打印模板', icon: 'el-icon-printer' }
             }
-            
+
         ]
     },
 

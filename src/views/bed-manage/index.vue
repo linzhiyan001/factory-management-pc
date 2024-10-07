@@ -16,7 +16,10 @@
                         </el-date-picker>
                     </el-form-item>
                     <el-row>
-                        <el-button type="success" class="lgm-search-btn" icon="el-icon-search">搜索</el-button>
+                        <el-button type="success"  @click="
+                page = 1;
+                cutting_bedFn();
+              " class="lgm-search-btn" icon="el-icon-search">搜索</el-button>
                         <el-button class="lgm-reset-btn" icon="el-icon-refresh" @click="reset">重置</el-button>
                     </el-row>
                 </el-form>
@@ -60,32 +63,32 @@
             </div>
 
             <div class="table">
-                <el-table :data="ccDataList" border>
-                    <el-table-column type="selection" width="55" align="center"></el-table-column>
-                    <el-table-column prop="id" label="制单号" align="center" min-width="240" v-if="cDataList[0].check"></el-table-column>
-                    <el-table-column prop="code" label="款式编号" align="center" min-width="240" v-if="cDataList[1].check"></el-table-column>></el-table-column>
-                    <el-table-column prop="name2" label="款式名称" align="center" min-width="200" v-if="cDataList[2].check"></el-table-column>
-                    <el-table-column prop="cc" label="床次" align="center" width="140" v-if="cDataList[3].check"></el-table-column>
-                    <el-table-column prop="js" label="裁床件数" align="center" width="140" v-if="cDataList[4].check"></el-table-column>
-                    <el-table-column prop="name" label="客户名称" align="center" min-width="200" v-if="cDataList[5].check"></el-table-column>
-                    <el-table-column prop="size" label="尺码组合" align="center" min-width="200" v-if="cDataList[6].check"></el-table-column>
-                    <el-table-column prop="color" label="颜色组合" align="center" min-width="200" v-if="cDataList[7].check"></el-table-column>
-                    <el-table-column prop="img" label="图片" align="center" width="140" v-if="cDataList[8].check">
+                <el-table :data="dataList" border>
+                   
+                    <el-table-column prop="bed_count" label="床数" align="center" min-width="240" ></el-table-column>
+                    <!-- <el-table-column prop="bed_count_unit" label="单位" align="center" min-width="240" ></el-table-column> -->
+                    <el-table-column prop="size_name" label="尺码" align="center" min-width="240" ></el-table-column>
+                    <el-table-column prop="color_name" label="颜色" align="center" min-width="240" ></el-table-column>
+                    <el-table-column prop="customer_name" label="客户" align="center" min-width="240" ></el-table-column>
+                    <el-table-column prop="cutting_date" label="裁床日期" align="center" min-width="240" ></el-table-column>
+                    <el-table-column prop="delivery_date" label="交货日期" align="center" min-width="240" ></el-table-column>
+                    <el-table-column prop="order_number" label="订单号" align="center" min-width="240" ></el-table-column>
+                    <el-table-column prop="department_name" label="加工部门" align="center" min-width="240" ></el-table-column>
+                    <el-table-column prop="remark" label="备注" align="center" min-width="200" ></el-table-column>
+                    <!-- <el-table-column prop="img" label="图片" align="center" width="140" >
                         <template slot-scope="scope">
                             <el-image :src="scope.row.img" fit="cover" style="width: 80px;height: 80px;" :preview-src-list="srcList" />
                         </template>
-                    </el-table-column>
-                    <el-table-column prop="price" label="工价" align="center" width="140" v-if="cDataList[9].check"></el-table-column>
-                    <el-table-column prop="jhrq" label="交货日期" align="center" width="140" v-if="cDataList[10].check"></el-table-column>
-                    <el-table-column prop="ccrq: '2024-05-04'," label="裁床日期" align="center" width="140" v-if="cDataList[11].check"></el-table-column>
-                    <el-table-column prop="remark" label="备注" align="center" min-width="200" v-if="cDataList[12].check"></el-table-column>
+                    </el-table-column> -->
+                    
+                  
                     <el-table-column fixed="right" label="操作" align="center" width="280">
                         <template slot-scope="scope">
                             <div class="flex">
                                 <el-button size="mini" type="primary" plain @click="handleEdit(scope.$index, scope.row)">
                                     <i class="el-icon-edit"></i> 修改
                                 </el-button>
-                                <el-button size="mini" type="danger" plain @click="handleEdit(scope.$index, scope.row)">
+                                <el-button size="mini" type="danger" plain @click="handleDelete(scope.$index, scope.row)">
                                     <i class="el-icon-delete"></i> 删除
                                 </el-button>
                                 <el-button size="mini" type="success" plain @click="handleDelete(scope.$index, scope.row)">复制裁床单</el-button>
@@ -99,7 +102,7 @@
                 </el-table>
             </div>
             <div class="lgm-page-wrap">
-                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background :page-sizes="[10, 100, 200, 300, 400]" :page-size="10" layout="total, sizes, prev, pager, next, jumper" :total="400">
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" background :page-sizes="[10, 100, 200, 300, 400]" :page-size="10" layout="total, sizes, prev, pager, next, jumper" :total="total">
                 </el-pagination>
             </div>
         </div>
@@ -114,7 +117,7 @@
                 <el-form-item label="款式名称" class="lgm-form-item">
                     <el-input v-model="detailData.name"></el-input>
                 </el-form-item>
-
+           
                 <el-form-item label="颜色组合" class="lgm-form-item">
                     <el-select v-model="colorListValue" placeholder="请选择" style="width: 100%;" multiple @change="colorChange">
                         <div class="search-slot" style="padding: 10px;">
@@ -394,16 +397,13 @@
 							:value="item.id"></el-option>
 					</el-select>
 				</el-form-item>
+                
                 <el-form-item label="颜色组合" class="lgm-form-item">
 					<el-select v-model="cdFormData.colors" placeholder="请选择" style="width: 100%;" multiple
 						@change="colorChange">
 						<div class="search-slot" style="padding: 10px;">
 							<div class="header" style="display: flex; justify-content: space-between;">
-								<!-- <div class="header-left" style="display: flex; width: calc(100% - 140px);">
-									<el-input v-model="addColor" placeholder="输入新增颜色"></el-input>
-									<el-button type="info" plain icon="el-icon-plus"
-										@click="clickAddColor">添加颜色</el-button>
-								</div> -->
+								
 								<div class="header-right">
 									<el-button type="primary"  class="lgm-add-btn"
 										@click="selectAllColor">{{ isAllSelectColorBtn }}</el-button>
@@ -460,150 +460,9 @@
                 </el-form-item>
             </el-form>
 
-            <!-- 制单表 -->
-            <div class="order-table">
-                <div class="order-table-header">
-                    <div class="name">
-                        裁床表
-                    </div>
-
-                    <div class="size-arr">
-                        <span>每点击一次添加一次尺码</span>
-                        <div class="item" v-for="(item, index) of selectSizeArrTag" :key="item.size" @click="clickTableSize(index, item)">
-                            {{ item.size }}
-                        </div>
-                    </div>
-                </div>
-                <div class="order-table-bottom">
-                    <div class="name">
-                        <p>每点击一次</p>
-                        <p>添加一次颜色</p>
-
-                        <div class="item" v-for="(item, index) of selectColorArrTag" :key="item.color" @click="clickTableColor(item)">
-                            {{ item.color }}
-                        </div>
-                    </div>
-                    <div class="middle">
-                        <div class="no-data" v-if="diyTableData.length === 0 && diyTableColumn.length === 0">
-                            请点击添加尺码及颜色进行设置裁床表
-                        </div>
-                        <div class="diy-table" v-else>
-                            <el-table :data="diyTableData" ref="diyTable" id="diyTable" border show-summary :summary-method="getSummaries" :style="{ 'width': tableWidth + 'px' }">
-                                <el-table-column label="颜色尺码" align="center" width="150">
-                                    <template slot-scope="scope">
-                                        <div v-if="handleParams.dual && scope.$index === 0">
-
-                                        </div>
-                                        <div v-else>
-                                            <i class="el-icon-delete" @click="deletTableColor(scope.$index)"></i>
-                                            {{ scope.$index }}:{{ scope.row.color }}
-                                        </div>
-                                    </template>
-                                </el-table-column>
-
-                                <!-- 层号 -->
-                                <el-table-column label="层号" align="center" width="80" v-if="handleParams.customCh">
-                                    <template slot-scope="scope">
-                                        <div>
-                                            <el-input v-model="scope.row['ch']" placeholder="层号"></el-input>
-
-                                        </div>
-                                    </template>
-                                </el-table-column>
-
-                                <!-- 倍数 -->
-                                <el-table-column label="倍数" align="center" width="80" v-if="handleParams.dual">
-                                    <template slot-scope="scope">
-                                        <div v-if="handleParams.dual !== '' && scope.$index !== 0">
-                                            <el-input v-model="scope.row['dual']" placeholder="倍数" @input="topDualChange(scope.$index, $event)"></el-input>
-                                        </div>
-                                        <div v-else>
-                                            倍数
-                                        </div>
-                                    </template>
-                                </el-table-column>
-
-                                <!-- 动态列 -->
-                                <el-table-column align="center" :prop="'gm' + item.zIndex" width="150" v-for="(item, index) of diyTableColumn" :key="item.label">
-                                    <template slot="header" slot-scope="scope">
-                                        <div slot="reference" @click="deleteTableColumn2(item, (scope.$index - 1), index)">
-                                            <i class="el-icon-delete"></i> {{ item.size }}
-                                            <div class="zszh" v-if="handleParams.customZh">
-                                                <span>扎号</span>
-                                                <span>数量</span>
-                                            </div>
-                                            <div class="zszh" v-if="handleParams.customZs">
-                                                <span>扎数</span>
-                                                <span>数量</span>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    <template slot-scope="scope">
-                                        <div style="display: flex; justify-content: space-between;" v-if="handleParams.dual">
-                                            <el-input v-model="scope.row['zh' + item.zIndex]" placeholder="数量" style="width: 60px;" v-if="handleParams.customZh && scope.$index !== 0"></el-input>
-                                            <el-input v-model="scope.row['zs' + item.zIndex]" placeholder="数量" style="width: 60px;" v-if="handleParams.customZs && scope.$index !== 0"> @input="changeTableZsInput(scope.$index, item.zIndex, $event)"</el-input>
-                                            <span v-if="handleParams.customStyle" @click="selectStyleTable(scope.$index, item.zIndex)">{{ scope.row['ks' + item.zIndex] }}</span>
-                                            <el-input v-model="scope.row['gm' + item.zIndex]" placeholder="数量" style="flex: 1;" @input="changeTableInput(scope.$index, $event)"></el-input>
-                                        </div>
-                                        <div style="display: flex; justify-content: space-between;" v-else>
-                                            <el-input v-model="scope.row['zh' + item.zIndex]" placeholder="数量" style="width: 60px;" v-if="handleParams.customZh"></el-input>
-                                            <el-input v-model="scope.row['zs' + item.zIndex]" placeholder="数量" style="width: 60px;" v-if="handleParams.customZs" @input="changeTableZsInput(scope.$index, item.zIndex, $event)"></el-input>
-                                            <span v-if="handleParams.customStyle" class="table-add-kh" @click="selectStyleTable(scope.$index, item.zIndex)">{{ scope.row['ks' + item.zIndex] }}</span>
-                                            <el-input v-model="scope.row['gm' + item.zIndex]" placeholder="数量" style="flex: 1;" @input="changeTableInput(scope.$index, $event)"></el-input>
-                                        </div>
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column label="合计" prop="total" align="center" width="149">
-                                    <template slot-scope="scope">
-                                        <div>
-                                            <div v-if="handleParams.dual && scope.$index === 0">
-                                            </div>
-                                            <div v-else>
-                                                {{ scope.row.total }}
-                                            </div>
-                                        </div>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                            <div class="table-bottom" :style="{ 'width': tableWidth + 'px' }">
-                                总扎数：{{ totalZs }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="handle">
-                        <div class="item" sty>
-                            从<el-input-number v-model="handleParams.zsNumber" controls-position="right" :min="1" size="mini" style="margin: 0 5px; flex: 1;" />扎起
-                        </div>
-                        <div class="item">
-                            自定义扎号<el-switch v-model="handleParams.customZh" active-color="#ed6d00" @change="handleChangeZh" style="margin-left: 5px;"></el-switch>
-                        </div>
-                        <div class="item">
-                            自定义扎数<el-switch v-model="handleParams.customZs" active-color="#ed6d00" @change="handleChangeZs" style="margin-left: 5px;"></el-switch>
-                        </div>
-                        <!-- <div class="item">
-                            行复制<el-switch v-model="handleParams.hfz" active-color="#ed6d00" style="margin-left: 5px;"></el-switch>
-                        </div>
-                        <div class="item">
-                            列复制<el-switch v-model="handleParams.lfz" active-color="#ed6d00" style="margin-left: 5px;"></el-switch>
-                        </div> -->
-                        <div class="item">
-                            倍数模式<el-switch v-model="handleParams.dual" active-color="#ed6d00" @change="handleChangeDual" style="margin-left: 5px;"></el-switch>
-                        </div>
-                        <div class="item">
-                            自定义层号<el-switch v-model="handleParams.customCh" active-color="#ed6d00" @change="handleChangeCh" style="margin-left: 5px;"></el-switch>
-                        </div>
-                        <div class="item">
-                            新增款号<el-switch v-model="handleParams.customStyle" active-color="#ed6d00" @change="handleChangeStyle" style="margin-left: 5px;"></el-switch>
-                        </div>
-                        <div class="item">
-                            <el-button type="danger" plain @click="clearTable">清空裁床表</el-button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+		<!-- 裁床表 -->
+		<cutTable :sizes="cutSize" :colors="cutColor" :styleselectOptions="styleselectOptions" :style_id="model1.form.styleId" @saveTableList="saveTableList">
+		</cutTable>
 
             <span slot="footer" class="dialog-footer">
                 <el-button class="lgm-reset-btn" @click="ccDialog = false">返回</el-button>
@@ -756,6 +615,8 @@
 </template>
 
 <script>
+	import cutTable from './cut-table.vue';
+
     import Sortable from 'sortablejs'
     import UploadImage from '@/components/uploadImage'
     import $ from 'jquery'
@@ -765,29 +626,20 @@
     sizeAdmin,
     clothing_categoryAdmin,
     customerAdmin,
-    department, adminrole, styleAdmin, processs_template
+    cutting_bed,
+    department, adminrole, styleAdmin, processs_template,
 
   } from '@/api/admin'
     export default {
         name: 'StyleManage',
         data() {
             return {
+                dataList: [],
+        page: 1,
+        page_size: 10,
+        total: 0,
                 cDataList: [],
-                ccDataList: [{
-                    id: '001',
-                    code: '001',
-                    name2: '牛仔裤',
-                    cc: '1',
-                    js: 100,
-                    name: '刘总',
-                    size: '29,30',
-                    color: '黑色',
-                    img: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-                    price: '10.00',
-                    jhrq: '2024-06-04',
-                    ccrq: '2024-05-04',
-                    remark: ''
-                }],
+                ccDataList: [],
                 styleSearchParams: {
                     styleName: ''
                 },
@@ -872,6 +724,8 @@
                     cutting_date: '',
                     department_id: '',
                     departments: [],
+                    detail: [],
+                    style_id: [],
                     order_number: '',
                     remark: ''
                 },
@@ -902,59 +756,7 @@
                     styleName: ''
                 },
                 srcList: ['https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg'],
-                dataList: [{
-                        avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-                        id: '001',
-                        code: '001',
-                        ccrq: '2024-05-04',
-                        zs: 2,
-                        color: '黑色',
-                        name: '无',
-                        orderNumber: '123332',
-                        ch: '1',
-                        jhrq: '2024-06-04',
-                        js: 100,
-                        size: '29,30',
-                        sfsh: '否',
-                        finishNumber: 10,
-                        percentage: ''
-
-                    },
-                    {
-                        avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-                        id: '002',
-                        code: '001',
-                        ccrq: '2024-05-04',
-                        zs: 2,
-                        color: '黑色',
-                        name: '无',
-                        orderNumber: '123332',
-                        ch: '1',
-                        jhrq: '2024-06-04',
-                        js: 100,
-                        size: '29,30',
-                        sfsh: '否',
-                        finishNumber: 20,
-                        percentage: ''
-                    },
-                    {
-                        avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-                        id: '003',
-                        code: '001',
-                        ccrq: '2024-05-04',
-                        zs: 2,
-                        color: '黑色',
-                        name: '无',
-                        orderNumber: '123332',
-                        ch: '1',
-                        jhrq: '2024-06-04',
-                        js: 100,
-                        size: '29,30',
-                        sfsh: '否',
-                        finishNumber: 30,
-                        percentage: ''
-                    }
-                ],
+                dataList: [],
                 UploadImageType: '',
                 dataList2: [{
                         avatar: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
@@ -1019,17 +821,17 @@
                     }]
                 },
                 rules2: {
-                    cs: [{
+                    bed_count: [{
                         required: true,
                         message: '请输入床数',
                         trigger: 'blur'
                     }, ],
-                    ccDate: [{
+                    cutting_date: [{
                         required: true,
                         message: '请选择裁床日期',
                         trigger: 'change'
                     }],
-                    jhDate: [{
+                    delivery_date: [{
                         required: true,
                         message: '请选择交货日期',
                         trigger: 'change'
@@ -1080,12 +882,72 @@
                 diyTableColumn: [],
                 nn: 0,
                 tableTypeData: [],
-                dualNumber: 0
+                dualNumber: 0,
+
+                cdFormData: {
+					colors: [],
+					sizes: [],
+				},
+				colorListOptions: [],
+				sizeListOptions: [],
+				cutSize: [],
+				cutColor: [],
+				dataList1: [],
+				dataList2: [],
+				styleselectOptions: [],
+                
+				disabled: false,
+				model1: {
+					form: {
+						id: '',
+						styleId: "", //款式id
+						bed_count: 3, //床次
+						bed_count_unit: '月', //床次单位
+						sizeArr: "", //尺码组合
+						sizes: [], //尺码组合id
+						colorArr: "", //颜色组合
+						colors: [], //颜色组合id
+						departmentsName: "", //加工部门
+						departments: [], //加工部门id
+						customer_Name: "", //客户名
+						customer_id: "", //客户id
+						cutting_date: "", //裁床日期
+						delivery_date: "", //交货日期
+						order_number: "", //订单号
+						remark: "", //备注
+						detail: [{
+							style_id: 23,
+							size_id: 25,
+							color_id: 18,
+							bundle_number: 1,
+							multiple: 1,
+							quantity: 1,
+							layer_number: 1,
+							total: 2,
+							bundle_no: 1
+						}, {
+							style_id: 23,
+							size_id: 25,
+							color_id: 18,
+							bundle_number: 1,
+							multiple: 1,
+							quantity: 1,
+							layer_number: 2,
+							total: 2,
+							bundle_no: 2
+						}, ]
+					}
+				},
+
+
+
             }
         },
         components: {
             'upload-image': UploadImage,
-            'download-excel': DownloadExcel
+            'download-excel': DownloadExcel,
+			cutTable
+
         },
         watch: {
             customColumn(data) {
@@ -1182,9 +1044,87 @@ this.colorAdminFn()
 this.sizeAdminFn()
 this.customerAdminFn()
 this.departmentFn()
+this.styleselectFn()
+this.cutting_bedFn()
 
         },
         methods: {
+            handleDelete(index, item) {
+                this.$confirm('是否确认删除选中的数据?', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					confirmButtonClass: 'submitDeleteBtn',
+					type: 'warning'
+				}).then(() => {
+					cutting_bed({}, 'DELETE', item.id).then((e) => {
+						this.reset()
+
+					})
+
+					this.$message({
+						type: 'success',
+						message: '删除成功!'
+					});
+				})
+			},
+            cutting_bedFn() {
+                cutting_bed(
+          {
+            page: this.page,
+            page_size: this.page_size,
+            name: this.searchParams.style_name
+          },
+          "GET"
+        ).then((e) => {
+          console.log(e.data.list);
+          this.dataList = e.data.list;
+          this.total = e.data.total;
+        });
+      },
+            		// 颜色弹窗-确定
+			clickConfirmColor() {
+				let arr = []
+				let arrId = []
+				let cutColor = []
+				for (let i = 0; i < this.dataList2.length; i++) {
+					if (this.dataList2[i].checked) {
+						arr.push(this.dataList2[i].color_name)
+						arrId.push(this.dataList2[i].id)
+						cutColor.push(this.dataList2[i])
+					}
+				}
+				this.model1.form.colorArr = arr.toString()
+				this.model1.form.colors = arrId
+				this.cutColor = cutColor
+			},
+			// 尺码弹窗-确定
+			clickConfirmSize() {
+				let arr = []
+				let arrId = []
+				let cutSize = []
+				for (let i = 0; i < this.dataList1.length; i++) {
+					if (this.dataList1[i].checked) {
+						arr.push(this.dataList1[i].size_name)
+						arrId.push(this.dataList1[i].id)
+						cutSize.push(this.dataList1[i])
+					}
+				}
+				this.model1.form.sizeArr = arr.toString()
+				this.model1.form.sizes = arrId
+				this.cutSize = cutSize
+			},
+			styleselectFn(){
+                styleAdmin({
+                    page: 1,
+                    page_size: 100000
+					},
+					"GET"
+				).then((e) => {
+					this.styleselectOptions = e.data.list;
+					
+				});
+            },
+		
             colorAdminFn() {
 				colorAdmin({
 						page: 1,
@@ -1872,27 +1812,67 @@ this.ccDialog=true
                 }
             },
             colorChange() {
+                console.log(123)
                 if (this.colorListValue.length !== this.colorListOptions) {
                     this.isAllSelectColorBtn = '选择所有'
                 }
+                this.clickConfirmColor()
             },
             selectAllColor() {
                 if (this.isAllSelectColorBtn === '取消所有') {
 					this.isAllSelectColorBtn = '选择所有'
 					this.cdFormData.colors = []
 				} else {
+                    this.cdFormData.colors=[]
 					this.isAllSelectColorBtn = '取消所有'
 					for (let i in this.colorListOptions) {
 						let item = this.colorListOptions[i]
 						this.cdFormData.colors.push(item.id)
 					}
 				}
+                this.clickConfirmColor()
+
 
             },
+            clickConfirmColor() {
+				let arr = []
+				let arrId = []
+				let cutColor = []
+
+                const filteredList = this.colorListOptions.filter(item => this.cdFormData.colors.includes(item.id));
+
+				for (let i = 0; i < filteredList.length; i++) {
+					arr.push(filteredList[i].color_name)
+						arrId.push(filteredList[i].id)
+						cutColor.push(filteredList[i])
+				}
+				// this.model1.form.colorArr = arr.toString()
+				// this.model1.form.colors = arrId
+				this.cutColor = cutColor
+			},
+			// 尺码弹窗-确定
+			clickConfirmSize() {
+				let arr = []
+				let arrId = []
+				let cutSize = []
+
+                const filteredList = this.sizeListOptions.filter(item => this.cdFormData.sizes.includes(item.id));
+
+				for (let i = 0; i < filteredList.length; i++) {
+                    arr.push(filteredList[i].size_name)
+						arrId.push(filteredList[i].id)
+						cutSize.push(filteredList[i])
+				}
+				// this.model1.form.sizeArr = arr.toString()
+				// this.model1.form.sizes = arrId
+				this.cutSize = cutSize
+			},
             sizeChange() {
                 if (this.colorListValue.length !== this.colorListOptions) {
                     this.isAllSelectColorBtn = '选择所有'
                 }
+                this.clickConfirmSize()
+
             },
             selectAllSize() {
 				if (this.isAllSelectSizeBtn === '取消所有') {
@@ -1905,6 +1885,8 @@ this.ccDialog=true
 						this.cdFormData.sizes.push(item.id)
 					}
 				}
+                this.clickConfirmSize()
+
 			},
             // 确定尺码
             selectSize() {
@@ -2015,44 +1997,29 @@ this.ccDialog=true
                     this.addBoss = ''
                 }
             },
-            clickPreview(cdForm) {
-                this.$refs[cdForm].validate((valid) => {
-                    if (valid) {
-                        if (this.totalZs === 0) {
-                            this.$message({
-                                type: 'error',
-                                message: '请先设置裁床表'
-                            })
-                            return
-                        }
+            	// 裁床表
+			saveTableList(list, sizeCheck, colorCheck) {
+				console.log(list)
+				console.log(list, sizeCheck, colorCheck)
+				this.cdFormData.detail=[]
 
-                        let arr = []
-
-                        for (let i = 0; i < this.diyTableData.length; i++) {
-                            let item = this.diyTableData[i]
-                            let obj = {}
-                            obj['color'] = item.color
-                            for (let j = 0; j < this.diyTableColumn.length; j++) {
-                                let item2 = this.diyTableColumn[j]
-                                obj = JSON.parse(JSON.stringify(obj))
-                                obj['size'] = this.diyTableColumn[j].size
-
-                                for (let jj = 0; jj < 200; jj++) {
-                                    if (item2.label === 'gm' + jj) {
-                                        obj['number'] = item['gm' + jj]
-                                        obj['zh'] = item['zh' + jj]
-                                        arr.push(obj)
-                                    }
-                                }
-                            }
-                        }
-
-                        this.tableTypeData = arr
-
-                        this.previewDialog = true
+                list.forEach((e,idx)=>{
+                    if(e.style_id){
+                        this.cdFormData.detail.push(e)
                     }
                 })
+				// this.model1.form.sizeCheck = sizeCheck
+				// this.model1.form.colorCheck = colorCheck
+			},
+		
+            clickPreview(cdForm) {
+                console.log(this.cdFormData)
 
+                cutting_bed(this.cdFormData,'POST').then((e)=>{
+                    this.ccDialog = false
+                    this.reset()
+                })
+         
             },
             changeStyle() {
                 this.isTableSelect = false // 不是表格中打开“选择款式”
@@ -2062,11 +2029,15 @@ this.ccDialog=true
                 for (let i in this.searchParams) {
                     this.searchParams[i] = null
                 }
+                this.page = 1;
+                this.cutting_bedFn();
             },
             reset2() {
                 for (let i in this.styleSearchParams) {
                     this.searchParams[i] = null
                 }
+                this.page = 1;
+                this.cutting_bedFn();
             },
             styleTableSearch() {
 

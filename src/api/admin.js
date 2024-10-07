@@ -198,3 +198,19 @@ export function styleAdmin(params,method,isLine) {
     data:params
   })
 }
+export function cutting_bed(params,method,isLine) {
+  return request({
+    url: '/api/Admin/cutting_bed'+(isLine?'/'+isLine:''),
+    method,
+    params,
+    data:params
+  })
+}
+export function styleselect(params,method) {
+  return request({
+    url: '/Admin/style/select',
+    method,
+    params,
+    data:params
+  })
+}

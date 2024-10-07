@@ -58,6 +58,9 @@
 								<el-button size="mini" type="primary" plain @click="handleEdit(scope.row)">
 									<i class="el-icon-edit"></i> 修改
 								</el-button>
+								<el-button size="mini" type="danger" plain @click="handleDelete(scope.$index, scope.row)">
+                                    <i class="el-icon-delete"></i> 删除
+                                </el-button>
 								<el-button size="mini" type="success" plain
 									@click="handleCcbf(scope.$index, scope.row)">裁床编菲</el-button>
 <!--								<el-button size="mini" type="warning" plain-->
@@ -1257,6 +1260,24 @@ import   styleManageIndex from '@/views/template/index.vue'
 
 		},
 		methods: {
+			handleDelete(index, item) {
+                this.$confirm('是否确认删除选中的数据?', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					confirmButtonClass: 'submitDeleteBtn',
+					type: 'warning'
+				}).then(() => {
+					styleAdmin({}, 'DELETE', item.id).then((e) => {
+						this.reset()
+
+					})
+
+					this.$message({
+						type: 'success',
+						message: '删除成功!'
+					});
+				})
+			},
       beforeUpload() {
         // 显示 loading
         this.loadingInstance = Loading.service({
